@@ -24,10 +24,12 @@ public class TareaRestController {
     public Tarea getTareaById(@PathVariable long id) {
         Optional<Tarea> tarea = tareaRepository.findById(id);
 
-        if ( tarea.isPresent() )
+        return tarea.orElse(null);
+
+        /*if ( tarea.isPresent() )
             return tarea.get();
 
-        return null;
+        return null;*/
     }
 
     @PostMapping
@@ -54,8 +56,8 @@ public class TareaRestController {
     public ResponseEntity<Tarea> updateTarea(@RequestBody Tarea tarea, @PathVariable long id) {
         Optional<Tarea> tareaIndb = tareaRepository.findById(id);
 
-        if ( !tareaIndb.isPresent() )
-            return ResponseEntity.badRequest().build();
+        if (tareaIndb.isEmpty())
+            return ResponseEntity.notFound().build();
 
         tarea.setId( tareaIndb.get().getId() );
 
@@ -75,5 +77,18 @@ public class TareaRestController {
             return ResponseEntity.ok(saved);
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @DeleteMapping( path = "/{id}")
+    public ResponseEntity<Tarea> deleteTarea(@PathVariable long id) {
+        Optional<Tarea> tareaInDb = tareaRepository.findById(id);
+
+        if ( tareaInDb.isEmpty() ) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        tareaRepository.deleteById(id);
+
+        return ResponseEntity.ok( tareaInDb.get() );
     }
 }
