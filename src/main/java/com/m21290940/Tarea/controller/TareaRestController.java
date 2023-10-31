@@ -49,4 +49,31 @@ public class TareaRestController {
         }
         return ResponseEntity.badRequest().build();
     }
+
+    @PutMapping( path = "/{id}" )
+    public ResponseEntity<Tarea> updateTarea(@RequestBody Tarea tarea, @PathVariable long id) {
+        Optional<Tarea> tareaIndb = tareaRepository.findById(id);
+
+        if ( !tareaIndb.isPresent() )
+            return ResponseEntity.badRequest().build();
+
+        tarea.setId( tareaIndb.get().getId() );
+
+        boolean isOk = true;
+        if (tarea == null)
+            return ResponseEntity.badRequest().build();
+
+        if (    tarea.getTitulo() == null || tarea.getDescripcion() == null ||
+                tarea.getTitulo().isEmpty() || tarea.getDescripcion().isEmpty() ) {
+            isOk = false;
+        }
+        if ( tarea.getStatus() == null || tarea.getStatus().isEmpty() )
+            tarea.setStatus("Pendiente");
+
+        if ( isOk ){
+            Tarea saved = tareaRepository.save(tarea);
+            return ResponseEntity.ok(saved);
+        }
+        return ResponseEntity.badRequest().build();
+    }
 }
